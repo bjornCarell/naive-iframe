@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Naive iFrame</title>
+</head>
+<body style="
+  display: flex; 
+  flex-direction: column;
+  padding: 2rem;
+  font-family: Arial, Helvetica, sans-serif;
+  ">
+  <h2>
+    Embed in iFrame, Tink
+    <a 
+      target="blank" 
+      href="https://docs.tink.com/resources/tink-link-web/tink-link-web-embed-in-iframe">
+      docs
+    </a>
+  </h2>
+  <form style="
+    display: flex; 
+    flex-direction: column;
+    ">
+    <label for="my-tink-link">Your Tink Link</label>
+    <input type="search" id="my-tink-link"/>
+    <div style="
+      display: flex;
+      margin-top: 0.5rem;
+      ">
+      <button type="submit"id="add-link" style="width: 5rem;">Add</button>
+      <button type="submit"id="clear-form" style="width: 5rem;">Clear</button>
+      <button id="refresh-page" style="width: 5rem;">Refresh</button>
+    </div>
+  </form>
+  <div style="margin-top: 1rem;">
+    <p style="font-weight: 600;">Open the browser console for all post messages.</p>
+  </div>
+  <div style="
+    display:flex; 
+    margin-top: 1rem;
+    ">
+    <iframe id="iframe" title="iFrame" height="700px"
+      src="">
+    </iframe>
+    <div 
+      style="
+      padding-left: 5rem; 
+      max-width: 30rem; 
+      background-color: #fefefe;
+      ">
+      <code>
+        <pre id="origin-error" style="color: red"></pre>
+      </code>
+      <h3>
+        <code>Current Post Message:</code>
+      </h3>
+      <code>
+        <pre id="status-text"></pre>
+      </code>
+    </div>
+  </div>
+  <script>
+
+    const iframe = document.getElementById('iframe');
+    const iframeWindow = document.getElementsByTagName("iframe")[0].contentWindow;
+    const myLink = document.getElementById('my-tink-link');
+    const addLink = document.getElementById('add-link');
+    const clearForm = document.getElementById('clear-form');
+    const refreshPage = document.getElementById('refresh-page');
+    const originError = document.getElementById('origin-error');
+    const statusText = document.getElementById('status-text');
+
+    addLink.addEventListener('click', e => {
+      e.preventDefault();
+    });
+
+    clearForm.addEventListener('click', e => {
+      e.preventDefault();
+      myLink.value = '';
+      originError.textContent = '';
+    });
+
+    refreshPage.addEventListener('click', async e => {
+      originError.textContent = '';
+      location.reload();
+    });
+
+    myLink.addEventListener('change', e => {
+      iframe.src = e.target.value;
+
+      const url = new URL(iframe.src);
+      const params = new URLSearchParams(url.search);
+      const redirect_uri = new URL(params.get('redirect_uri'));
+
+      if(!url.search.includes('iframe=true')) {
+        originError.textContent = 'Your Tink Link does not include "iframe=true"';
+      } 
+
+      if(url.search.includes('iframe=true')) {
+        originError.textContent = '';
+      } 
+
+      const location = window.location;
+
+      if (redirect_uri.origin !== location.origin) {
+        const originErrorMsg = `%cFailed to execute ‘postMessage’ on ‘DOMWindow’: The target origin provided (${redirect_uri.origin}) does not match the recipient window’s origin (${location.origin}).`
+        console.log({
+          redirect: redirect_uri.origin,
+          location: location.origin
+        })
+        originError.innerText = originErrorMsg;
+        console.log(originErrorMsg, "color:red")
+      }
+
+      if (redirect_uri === location) {
+        originError.innerText = '';
+      }
+    });
+
+    // https://docs.tink.com/resources/tink-link-web/tink-link-web-embed-in-iframe#add-a-listener-to-your-app
+    window.addEventListener('message', receiveMessage, false);
+
+    function receiveMessage(event) {
+      if (event.origin !== 'https://link.tink.com') {
+        return;
+      }
+
+      // Read more about the message format here: https://docs.tink.com/api/#tink-link-response-iframe-mode
+      const {type, data, error} = JSON.parse(event.data);
+
+      statusText.innerText = JSON.stringify({type, data, error}, null, 2);
+
+      const postMessage = {type, data, error};
+      console.log('POST MESSAGE:', postMessage);
+      console.log('--------------------------')
+
+      if (type === 'account_verification_report_id') {
+        // Handle code for account verification reports
+        const code = data;
+      }
+
+      if (type === 'code') {
+        // This is the authorization code that should be exchanged for an access token
+      } else if (type === 'error') {
+        // Handle error response from Tink Link
+ 
+      } else if (type === 'credentials') {
+        // Handle credentials error response from Tink Link
+
+      } else if (type === 'status') {
+        // Observe Tink Link loading state (optional)
+        const {loading} = data;
+      } else {
+        // More message types may be added in the future
+      }
+    }
+  </script>
+</body>
+</html>

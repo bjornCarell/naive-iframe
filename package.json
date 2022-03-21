@@ -1,0 +1,15 @@
+{
+  "name": "naive-iframe",
+  "version": "1.0.0",
+  "description": "iframe",
+  "main": "server.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "Björn Carell",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.3",
+    "open": "^8.4.0"
+  }
+}
