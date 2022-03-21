@@ -106,7 +106,7 @@
       const location = window.location;
 
       if (redirect_uri.origin !== location.origin) {
-        const originErrorMsg = `%cFailed to execute ‘postMessage’ on ‘DOMWindow’: The target origin provided (${redirect_uri.origin}) does not match the recipient window’s origin (${location.origin}).`
+        const originErrorMsg = `Your redirect uri needs to be "${location.origin}" when using this app. Your current redirect uri is "${redirect_uri.origin}"`
         console.log({
           redirect: redirect_uri.origin,
           location: location.origin
