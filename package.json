@@ -4,7 +4,8 @@
   "description": "iframe",
   "main": "server.js",
   "scripts": {
-    "test": "test"
+    "test": "test",
+    "start": "node server.js"
   },
   "author": "Björn Carell",
   "license": "ISC",

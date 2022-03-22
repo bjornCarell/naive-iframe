@@ -19,5 +19,5 @@ npm install
 From the root directory, in your terminal run
 
 ````
-node server.js
+npm start
 ````
